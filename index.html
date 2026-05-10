@@ -1,0 +1,3433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arunium — Execution Infrastructure for Africa</title>
+<meta name="description" content="Arunium is Africa's premier strategy, operations, and digital transformation execution firm. We turn strategy into operational reality.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Barlow:wght@300;400;500;600&family=Barlow+Condensed:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --gold: #C8973A;
+  --gold-light: #D4AF37;
+  --gold-pale: rgba(200,151,58,0.15);
+  --gold-border: rgba(200,151,58,0.25);
+  --navy: #050A14;
+  --navy-2: #080E1C;
+  --navy-3: #0B1428;
+  --navy-4: #0E1A33;
+  --slate: #1A2540;
+  --text-primary: #F0EDE8;
+  --text-secondary: #A8A49D;
+  --text-muted: #5C5A56;
+  --glass: rgba(255,255,255,0.03);
+  --glass-border: rgba(255,255,255,0.07);
+  --font-serif: 'Cormorant Garamond', serif;
+  --font-sans: 'Barlow', sans-serif;
+  --font-cond: 'Barlow Condensed', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; font-size: 16px; }
+
+body {
+  background: var(--navy);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-weight: 300;
+  line-height: 1.7;
+  overflow-x: hidden;
+  cursor: default;
+}
+
+/* ─── SCROLLBAR ─── */
+::-webkit-scrollbar { width: 3px; }
+::-webkit-scrollbar-track { background: var(--navy); }
+::-webkit-scrollbar-thumb { background: var(--gold); border-radius: 2px; }
+
+/* ─── NOISE TEXTURE OVERLAY ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.4;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 1000;
+  padding: 0 48px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(5,10,20,0.85);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+  transition: all 0.4s ease;
+}
+
+nav.scrolled {
+  height: 64px;
+  background: rgba(5,10,20,0.97);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.nav-logo-icon {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 28px;
+}
+
+.nav-logo-icon span {
+  display: block;
+  background: linear-gradient(180deg, #D4AF37, #C8973A);
+  border-radius: 1px;
+  width: 5px;
+}
+.nav-logo-icon span:nth-child(1) { height: 14px; }
+.nav-logo-icon span:nth-child(2) { height: 20px; }
+.nav-logo-icon span:nth-child(3) { height: 28px; }
+
+.nav-logo-text {
+  font-family: var(--font-cond);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -4px; left: 0; right: 0;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--gold); }
+.nav-links a:hover::after { transform: scaleX(1); }
+
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 20px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8,14,28,0.98);
+  border: 1px solid var(--gold-border);
+  padding: 8px 0;
+  min-width: 160px;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+  opacity: 1;
+  pointer-events: all;
+  top: calc(100% + 12px);
+}
+
+.nav-dropdown-menu a {
+  display: block;
+  padding: 10px 20px;
+  font-size: 11px;
+}
+
+.nav-dropdown-menu a::after { display: none; }
+
+.nav-cta {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: var(--gold);
+  padding: 10px 24px;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.nav-cta:hover {
+  background: var(--gold-light);
+  transform: translateY(-1px);
+}
+
+.nav-hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+.nav-hamburger span {
+  display: block;
+  width: 24px;
+  height: 1px;
+  background: var(--gold);
+  transition: all 0.3s ease;
+}
+
+/* ─── MOBILE NAV ─── */
+.mobile-menu {
+  position: fixed;
+  inset: 0;
+  background: rgba(5,10,20,0.99);
+  z-index: 999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  transform: translateX(100%);
+  transition: transform 0.5s cubic-bezier(0.76,0,0.24,1);
+}
+
+.mobile-menu.open { transform: translateX(0); }
+
+.mobile-menu a {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  transition: color 0.3s;
+}
+
+.mobile-menu a:hover { color: var(--gold); }
+
+/* ─── PAGE SECTIONS ─── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ─── HOME ─── */
+
+/* HERO */
+.hero {
+  position: relative;
+  height: 100vh;
+  min-height: 700px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background: var(--navy);
+}
+
+.hero-grid-bg {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(200,151,58,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(200,151,58,0.04) 1px, transparent 1px);
+  background-size: 80px 80px;
+  animation: gridPulse 8s ease-in-out infinite;
+}
+
+@keyframes gridPulse {
+  0%,100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+.hero-gradient {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 60% at 70% 50%, rgba(200,151,58,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 80% at 20% 50%, rgba(11,20,40,0.8) 0%, transparent 80%),
+    linear-gradient(135deg, var(--navy) 0%, var(--navy-4) 100%);
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  padding: 0 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+  padding-top: 72px;
+}
+
+.hero-tag {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.3s forwards;
+}
+
+.hero-tag::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.hero-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(52px, 7vw, 96px);
+  font-weight: 300;
+  line-height: 1.05;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  max-width: 800px;
+  margin-bottom: 32px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.5s forwards;
+}
+
+.hero-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.hero-sub {
+  font-size: 15px;
+  font-weight: 300;
+  color: var(--text-secondary);
+  max-width: 480px;
+  line-height: 1.8;
+  margin-bottom: 48px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.7s forwards;
+}
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  opacity: 0;
+  animation: fadeUp 0.8s ease 0.9s forwards;
+}
+
+.btn-primary {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--navy);
+  background: var(--gold);
+  padding: 16px 36px;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  display: inline-block;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--gold-light);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.btn-primary:hover::before { transform: translateX(0); }
+.btn-primary span { position: relative; z-index: 1; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(200,151,58,0.3); }
+
+.btn-ghost {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: transparent;
+  padding: 16px 0;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  transition: color 0.3s ease;
+}
+
+.btn-ghost:hover { color: var(--gold); }
+.btn-ghost svg { transition: transform 0.3s ease; }
+.btn-ghost:hover svg { transform: translateX(4px); }
+
+/* Hero right side - animated dashboard */
+.hero-visual {
+  position: absolute;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 45%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  animation: fadeIn 1.2s ease 1.1s forwards;
+}
+
+.hero-dashboard {
+  width: 90%;
+  max-width: 560px;
+  background: rgba(8,14,28,0.8);
+  border: 1px solid var(--gold-border);
+  backdrop-filter: blur(20px);
+  padding: 32px;
+  position: relative;
+}
+
+.hero-dashboard::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.dash-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.dash-title {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.dash-status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-cond);
+  font-size: 10px;
+  color: #4CAF50;
+  letter-spacing: 0.1em;
+}
+
+.dash-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4CAF50;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.3); }
+}
+
+.dash-projects {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.dash-project {
+  padding: 16px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid var(--glass-border);
+}
+
+.dash-project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.dash-project-name {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  color: var(--text-primary);
+}
+
+.dash-project-pct {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+.dash-progress-bar {
+  height: 2px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.dash-progress-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  animation: fillBar 2s ease forwards;
+}
+
+@keyframes fillBar {
+  from { width: 0; }
+}
+
+.dash-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.dash-metric {
+  padding: 12px;
+  background: rgba(200,151,58,0.05);
+  border: 1px solid var(--gold-border);
+  text-align: center;
+}
+
+.dash-metric-val {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.dash-metric-label {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* Hero scroll indicator */
+.hero-scroll {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0;
+  animation: fadeIn 1s ease 1.5s forwards;
+}
+
+.hero-scroll span {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.scroll-line {
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(180deg, var(--gold), transparent);
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%,100% { opacity: 0.3; transform: scaleY(0.5); transform-origin: top; }
+  50% { opacity: 1; transform: scaleY(1); }
+}
+
+/* ─── SECTIONS COMMON ─── */
+section {
+  padding: 120px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.section-full {
+  max-width: none;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.section-tag {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.section-tag::before {
+  content: '';
+  display: block;
+  width: 28px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.section-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(36px, 4vw, 60px);
+  font-weight: 300;
+  line-height: 1.1;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.section-headline em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.section-body {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 560px;
+  line-height: 1.9;
+}
+
+/* ─── WHAT WE DO ─── */
+.what-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--glass-border);
+  margin-top: 80px;
+}
+
+.what-item {
+  background: var(--navy-2);
+  padding: 48px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.4s ease;
+}
+
+.what-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.5s ease;
+}
+
+.what-item:hover { background: var(--navy-3); }
+.what-item:hover::before { width: 100%; }
+
+.what-number {
+  font-family: var(--font-serif);
+  font-size: 48px;
+  font-weight: 300;
+  color: rgba(200,151,58,0.15);
+  line-height: 1;
+  margin-bottom: 24px;
+}
+
+.what-title {
+  font-family: var(--font-cond);
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.what-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+}
+
+/* ─── WHY ARUNIUM ─── */
+.why-section {
+  background: linear-gradient(135deg, var(--navy-2), var(--navy-3));
+  padding: 120px 48px;
+  position: relative;
+  overflow: hidden;
+}
+
+.why-section::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(200,151,58,0.05) 0%, transparent 70%);
+}
+
+.why-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.why-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  margin-top: 80px;
+}
+
+.why-card {
+  position: relative;
+  padding-top: 32px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.why-card::before {
+  content: '';
+  position: absolute;
+  top: -1px; left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--gold);
+  transition: width 0.6s ease;
+}
+
+.why-card:hover::before { width: 48px; }
+
+.why-icon {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 24px;
+  opacity: 0.7;
+}
+
+.why-title {
+  font-family: var(--font-cond);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.why-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+}
+
+/* ─── STATS BAR ─── */
+.stats-bar {
+  background: var(--navy-4);
+  border-top: 1px solid var(--gold-border);
+  border-bottom: 1px solid var(--gold-border);
+  padding: 64px 48px;
+}
+
+.stats-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 48px;
+  text-align: center;
+}
+
+.stat-number {
+  font-family: var(--font-serif);
+  font-size: 56px;
+  font-weight: 300;
+  color: var(--gold);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── FEATURED PROJECTS ─── */
+.projects-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 80px;
+}
+
+.project-card {
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  padding: 40px;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+}
+
+.project-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(200,151,58,0.05), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.project-card:hover {
+  border-color: var(--gold-border);
+  transform: translateY(-4px);
+}
+
+.project-card:hover::after { opacity: 1; }
+
+.project-tag {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.project-tag::before {
+  content: '';
+  width: 16px;
+  height: 1px;
+  background: var(--gold);
+}
+
+.project-name {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.project-desc {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 32px;
+}
+
+.project-metrics {
+  display: flex;
+  gap: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--glass-border);
+}
+
+.project-metric span:first-child {
+  display: block;
+  font-family: var(--font-serif);
+  font-size: 22px;
+  color: var(--gold);
+  font-weight: 300;
+}
+
+.project-metric span:last-child {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── CTA SECTION ─── */
+.cta-section {
+  background: linear-gradient(135deg, rgba(200,151,58,0.08), rgba(200,151,58,0.02));
+  border: 1px solid var(--gold-border);
+  padding: 96px 80px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 80px 48px;
+}
+
+.cta-section::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 50%; transform: translateX(-50%);
+  width: 1px;
+  height: 48px;
+  background: linear-gradient(180deg, transparent, var(--gold));
+}
+
+.cta-headline {
+  font-family: var(--font-serif);
+  font-size: clamp(32px, 4vw, 52px);
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.cta-sub {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 48px;
+}
+
+/* ─── SERVICES PAGE ─── */
+.services-hero {
+  padding: 160px 48px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.services-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 48px 120px;
+}
+
+.service-block {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 80px;
+  padding: 64px 0;
+  border-top: 1px solid var(--glass-border);
+  align-items: start;
+}
+
+.service-block:first-child { border-top: none; }
+
+.service-meta {
+  position: sticky;
+  top: 100px;
+}
+
+.service-num {
+  font-family: var(--font-serif);
+  font-size: 72px;
+  font-weight: 300;
+  color: rgba(200,151,58,0.1);
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.service-title {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+  line-height: 1.3;
+}
+
+.service-content {}
+
+.service-lead {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 300;
+  font-style: italic;
+  color: var(--gold);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.service-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  margin-bottom: 36px;
+}
+
+.service-outcomes {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.outcome-item {
+  padding: 20px;
+  background: var(--navy-2);
+  border-left: 2px solid var(--gold);
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.outcome-item strong {
+  display: block;
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+/* ─── EXECUTION NETWORK ─── */
+.network-hero {
+  position: relative;
+  padding: 160px 48px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.network-sectors {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--glass-border);
+  margin: 0 48px 120px;
+  max-width: 1304px;
+}
+
+.sector-item {
+  background: var(--navy-2);
+  padding: 40px 32px;
+  transition: background 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.sector-item::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0;
+  width: 0;
+  height: 2px;
+  background: var(--gold);
+  transition: width 0.4s ease;
+}
+
+.sector-item:hover { background: var(--navy-3); }
+.sector-item:hover::after { width: 100%; }
+
+.sector-icon {
+  font-size: 28px;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.sector-name {
+  font-family: var(--font-cond);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 10px;
+}
+
+.sector-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.7;
+}
+
+.network-pillars {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 80px 48px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.pillar-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pillar-item {
+  display: flex;
+  gap: 24px;
+  padding: 28px;
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  transition: border-color 0.3s ease;
+}
+
+.pillar-item:hover { border-color: var(--gold-border); }
+
+.pillar-icon-box {
+  width: 40px;
+  height: 40px;
+  border: 1px solid var(--gold-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--gold);
+  font-size: 18px;
+}
+
+.pillar-text h4 {
+  font-family: var(--font-cond);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: 6px;
+}
+
+.pillar-text p {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.7;
+}
+
+/* ─── CASE STUDIES ─── */
+.case-hero {
+  padding: 160px 48px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.case-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 48px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.case-card {
+  background: var(--navy-2);
+  padding: 64px;
+  border-left: 2px solid transparent;
+  transition: border-color 0.4s ease;
+  cursor: pointer;
+}
+
+.case-card:hover { border-color: var(--gold); background: var(--navy-3); }
+
+.case-header {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: start;
+  margin-bottom: 40px;
+}
+
+.case-name {
+  font-family: var(--font-serif);
+  font-size: 40px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.case-tag {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 16px;
+}
+
+.case-status {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  border: 1px solid var(--gold-border);
+  color: var(--gold);
+}
+
+.case-body {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  max-width: 800px;
+  margin-bottom: 40px;
+}
+
+.case-timeline {
+  display: flex;
+  gap: 0;
+  margin-bottom: 40px;
+  overflow-x: auto;
+}
+
+.timeline-phase {
+  flex: 1;
+  min-width: 140px;
+  padding: 16px 20px;
+  background: rgba(200,151,58,0.04);
+  border: 1px solid var(--glass-border);
+  border-right: none;
+  position: relative;
+}
+
+.timeline-phase:last-child { border-right: 1px solid var(--glass-border); }
+
+.timeline-phase.active {
+  background: rgba(200,151,58,0.08);
+  border-color: var(--gold-border);
+}
+
+.phase-num {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  letter-spacing: 0.2em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.phase-name {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.case-outcomes {
+  display: flex;
+  gap: 40px;
+}
+
+.case-outcome {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  color: var(--gold);
+  font-weight: 300;
+}
+
+.case-outcome-label {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* ─── CLIENT PORTAL ─── */
+.portal-login {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--navy);
+  padding: 80px 24px;
+}
+
+.login-box {
+  width: 100%;
+  max-width: 440px;
+}
+
+.login-logo {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.login-title {
+  font-family: var(--font-serif);
+  font-size: 32px;
+  font-weight: 300;
+  color: var(--text-primary);
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.login-sub {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-label {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 10px;
+}
+
+.form-input {
+  width: 100%;
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 16px 20px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.form-input:focus { border-color: var(--gold-border); }
+.form-input::placeholder { color: var(--text-muted); }
+
+.form-input:focus + .form-underline { width: 100%; }
+
+.form-select {
+  width: 100%;
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 16px 20px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s ease;
+  cursor: pointer;
+  appearance: none;
+}
+
+.form-select:focus { border-color: var(--gold-border); }
+
+.form-textarea {
+  width: 100%;
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  color: var(--text-primary);
+  padding: 16px 20px;
+  font-family: var(--font-sans);
+  font-size: 14px;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s ease;
+  resize: vertical;
+  min-height: 120px;
+}
+
+.form-textarea:focus { border-color: var(--gold-border); }
+
+/* DASHBOARD */
+.portal-dashboard {
+  display: none;
+  min-height: 100vh;
+  background: var(--navy);
+  padding-top: 72px;
+}
+
+.dashboard-sidebar {
+  position: fixed;
+  top: 72px;
+  left: 0;
+  bottom: 0;
+  width: 240px;
+  background: var(--navy-2);
+  border-right: 1px solid var(--glass-border);
+  padding: 32px 0;
+  overflow-y: auto;
+  z-index: 100;
+}
+
+.sidebar-section {
+  padding: 0 24px;
+  margin-bottom: 32px;
+}
+
+.sidebar-label {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  cursor: pointer;
+  border-radius: 2px;
+  transition: all 0.2s ease;
+  margin-bottom: 2px;
+}
+
+.sidebar-item:hover { background: var(--glass); color: var(--text-primary); }
+.sidebar-item.active { background: rgba(200,151,58,0.1); color: var(--gold); }
+
+.dashboard-main {
+  margin-left: 240px;
+  padding: 48px;
+}
+
+.dash-welcome {
+  margin-bottom: 48px;
+}
+
+.dash-welcome h2 {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.dash-welcome p {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.dash-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.kpi-card {
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--gold), transparent);
+}
+
+.kpi-label {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.kpi-value {
+  font-family: var(--font-serif);
+  font-size: 36px;
+  font-weight: 300;
+  color: var(--text-primary);
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.kpi-delta {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  color: #4CAF50;
+}
+
+.dash-content-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+}
+
+.dash-card {
+  background: var(--navy-2);
+  border: 1px solid var(--glass-border);
+  padding: 32px;
+}
+
+.dash-card-title {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.milestone-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.milestone-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.milestone-item:last-child { border-bottom: none; }
+
+.milestone-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 4px;
+}
+
+.milestone-dot.done { background: #4CAF50; }
+.milestone-dot.active { background: var(--gold); animation: pulse 2s infinite; }
+.milestone-dot.pending { background: var(--text-muted); }
+
+.milestone-name {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.milestone-meta {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.project-progress-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pp-item {}
+
+.pp-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.pp-name {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--text-primary);
+}
+
+.pp-pct {
+  font-family: var(--font-cond);
+  font-size: 12px;
+  color: var(--gold);
+}
+
+.pp-bar {
+  height: 3px;
+  background: rgba(255,255,255,0.06);
+  position: relative;
+}
+
+.pp-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+}
+
+/* ─── CAREERS ─── */
+.careers-hero {
+  padding: 160px 48px 80px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.roles-grid {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 48px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.role-card {
+  background: var(--navy-2);
+  padding: 40px 48px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 40px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border-left: 2px solid transparent;
+}
+
+.role-card:hover {
+  background: var(--navy-3);
+  border-color: var(--gold);
+}
+
+.role-title {
+  font-family: var(--font-serif);
+  font-size: 24px;
+  font-weight: 300;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.role-meta {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.role-badge {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  border: 1px solid var(--glass-border);
+  padding: 4px 12px;
+}
+
+.role-apply {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+
+/* APPLICATION FORM */
+.apply-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 160px 48px 120px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.file-upload {
+  border: 1px dashed var(--glass-border);
+  padding: 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+.file-upload:hover { border-color: var(--gold-border); }
+
+.file-upload-label {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.file-upload-hint {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.file-upload input[type="file"] { display: none; }
+
+/* ─── CONTACT ─── */
+.contact-section {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 160px 48px 120px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 120px;
+  align-items: start;
+}
+
+.contact-info h2 {
+  font-family: var(--font-serif);
+  font-size: 52px;
+  font-weight: 300;
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.contact-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.9;
+  margin-bottom: 48px;
+}
+
+.contact-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.contact-item {
+  padding: 24px 0;
+  border-top: 1px solid var(--glass-border);
+}
+
+.contact-item-label {
+  font-family: var(--font-cond);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.contact-item-value {
+  font-size: 14px;
+  color: var(--text-primary);
+}
+
+/* ─── FOOTER ─── */
+footer {
+  background: var(--navy-2);
+  border-top: 1px solid var(--glass-border);
+  padding: 80px 48px 40px;
+}
+
+.footer-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.footer-top {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 80px;
+  margin-bottom: 64px;
+}
+
+.footer-brand p {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.8;
+  margin-top: 20px;
+  max-width: 280px;
+}
+
+.footer-col h4 {
+  font-family: var(--font-cond);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 20px;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.footer-col ul li a {
+  font-size: 13px;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.footer-col ul li a:hover { color: var(--text-secondary); }
+
+.footer-bottom {
+  padding-top: 40px;
+  border-top: 1px solid var(--glass-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-copy {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ─── NOTIFICATION ─── */
+.toast {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  background: var(--navy-4);
+  border: 1px solid var(--gold-border);
+  padding: 20px 28px;
+  z-index: 9998;
+  transform: translateY(100px);
+  opacity: 0;
+  transition: all 0.4s ease;
+}
+
+.toast.show {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.toast-title {
+  font-family: var(--font-cond);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.toast-body {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+/* ─── DIVIDERS ─── */
+.gold-divider {
+  width: 48px;
+  height: 1px;
+  background: var(--gold);
+  margin: 24px 0;
+}
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  nav { padding: 0 24px; }
+  .nav-links { gap: 24px; }
+  section { padding: 80px 24px; }
+  .hero-visual { display: none; }
+  .hero-headline { font-size: clamp(44px, 8vw, 72px); }
+  .what-grid { grid-template-columns: 1fr; }
+  .why-grid { grid-template-columns: 1fr 1fr; }
+  .stats-inner { grid-template-columns: repeat(2, 1fr); }
+  .projects-grid { grid-template-columns: 1fr 1fr; }
+  .service-block { grid-template-columns: 1fr; gap: 32px; }
+  .service-meta { position: static; }
+  .network-sectors { grid-template-columns: repeat(2, 1fr); margin: 0 24px 80px; }
+  .network-pillars { grid-template-columns: 1fr; padding: 48px 24px 80px; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 48px; }
+  .contact-section { grid-template-columns: 1fr; gap: 64px; }
+  .dash-kpi-row { grid-template-columns: repeat(2, 1fr); }
+  .dash-content-grid { grid-template-columns: 1fr; }
+  .dashboard-sidebar { display: none; }
+  .dashboard-main { margin-left: 0; padding: 24px; }
+}
+
+@media (max-width: 768px) {
+  nav { padding: 0 20px; }
+  .nav-links { display: none; }
+  .nav-hamburger { display: flex; }
+  .nav-cta { display: none; }
+  section { padding: 64px 20px; }
+  .hero-content { padding: 0 20px; padding-top: 72px; }
+  .hero-headline { font-size: clamp(36px, 10vw, 56px); }
+  .hero-actions { flex-direction: column; align-items: flex-start; }
+  .why-grid { grid-template-columns: 1fr; }
+  .stats-inner { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .projects-grid { grid-template-columns: 1fr; }
+  .case-grid { padding: 0 20px 80px; }
+  .case-card { padding: 32px; }
+  .case-header { grid-template-columns: 1fr; }
+  .roles-grid { padding: 0 20px 80px; }
+  .role-card { grid-template-columns: 1fr; gap: 16px; padding: 28px 20px; }
+  .form-row { grid-template-columns: 1fr; }
+  .apply-section { padding: 120px 20px 80px; }
+  .services-grid { padding: 0 20px 80px; }
+  .cta-section { margin: 40px 20px; padding: 64px 32px; }
+  .footer-top { grid-template-columns: 1fr; gap: 40px; }
+  .footer-bottom { flex-direction: column; gap: 16px; text-align: center; }
+  .network-sectors { grid-template-columns: 1fr; margin: 0 20px 80px; }
+  .service-outcomes { grid-template-columns: 1fr; }
+  .dash-kpi-row { grid-template-columns: 1fr 1fr; }
+}
+
+/* ─── CHART SVG ─── */
+.chart-svg { width: 100%; height: 180px; }
+
+/* ─── INLINE GOLD LINE ─── */
+.inline-gold {
+  color: var(--gold);
+}
+
+/* ─── PORTAL HIDDEN AREAS ─── */
+.portal-area { display: none; }
+.portal-area.active { display: block; }
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <div class="toast-title" id="toastTitle">Success</div>
+  <div class="toast-body" id="toastBody">Your message has been received.</div>
+</div>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <a href="#" class="nav-logo" onclick="showPage('home')">
+    <div class="nav-logo-icon">
+      <span></span><span></span><span></span>
+    </div>
+    <span class="nav-logo-text">ARUNIUM</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#" onclick="showPage('home')">Home</a></li>
+    <li><a href="#" onclick="showPage('services')">Services</a></li>
+    <li><a href="#" onclick="showPage('network')">Execution Network</a></li>
+    <li><a href="#" onclick="showPage('cases')">Case Studies</a></li>
+    <li class="nav-dropdown">
+      <a href="#">Careers ▾</a>
+      <div class="nav-dropdown-menu">
+        <a href="#" onclick="showPage('roles')">Open Roles</a>
+        <a href="#" onclick="showPage('apply')">Apply Now</a>
+      </div>
+    </li>
+    <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+    <li><a href="#" onclick="showPage('portal')">Client Login</a></li>
+  </ul>
+
+  <a href="#" class="nav-cta" onclick="showPage('contact')"><span>Engage Us</span></a>
+
+  <div class="nav-hamburger" id="hamburger" onclick="toggleMobile()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#" onclick="showPage('home');toggleMobile()">Home</a>
+  <a href="#" onclick="showPage('services');toggleMobile()">Services</a>
+  <a href="#" onclick="showPage('network');toggleMobile()">Execution Network</a>
+  <a href="#" onclick="showPage('cases');toggleMobile()">Case Studies</a>
+  <a href="#" onclick="showPage('roles');toggleMobile()">Open Roles</a>
+  <a href="#" onclick="showPage('apply');toggleMobile()">Apply Now</a>
+  <a href="#" onclick="showPage('contact');toggleMobile()">Contact</a>
+  <a href="#" onclick="showPage('portal');toggleMobile()">Client Login</a>
+</div>
+
+<!-- ══════════════════════ HOME PAGE ══════════════════════ -->
+<div class="page active" id="page-home">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-grid-bg"></div>
+    <div class="hero-gradient"></div>
+
+    <div class="hero-content">
+      <div class="hero-tag">Lagos · Nairobi · Accra · Beyond</div>
+      <h1 class="hero-headline">
+        Execution<br>
+        Infrastructure<br>
+        for <em>Africa</em>
+      </h1>
+      <p class="hero-sub">
+        We don't just advise. We embed, design, and operate the systems that turn strategy into measurable reality — across complex markets, at scale.
+      </p>
+      <div class="hero-actions">
+        <a href="#" class="btn-primary" onclick="showPage('services')"><span>Explore Our Work</span></a>
+        <a href="#" class="btn-ghost" onclick="showPage('cases')">
+          View Case Studies
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- Animated Dashboard -->
+    <div class="hero-visual">
+      <div class="hero-dashboard">
+        <div class="dash-header">
+          <div class="dash-title">Live Execution Monitor</div>
+          <div class="dash-status"><div class="dash-dot"></div> 3 Active</div>
+        </div>
+
+        <div class="dash-projects">
+          <div class="dash-project">
+            <div class="dash-project-header">
+              <div class="dash-project-name">Party Plug — Platform Launch</div>
+              <div class="dash-project-pct">78%</div>
+            </div>
+            <div class="dash-progress-bar">
+              <div class="dash-progress-fill" style="width:78%;animation-delay:0.2s"></div>
+            </div>
+          </div>
+          <div class="dash-project">
+            <div class="dash-project-header">
+              <div class="dash-project-name">Vemre — Market Entry</div>
+              <div class="dash-project-pct">61%</div>
+            </div>
+            <div class="dash-progress-bar">
+              <div class="dash-progress-fill" style="width:61%;animation-delay:0.4s"></div>
+            </div>
+          </div>
+          <div class="dash-project">
+            <div class="dash-project-header">
+              <div class="dash-project-name">Errandsprt — Ops Build</div>
+              <div class="dash-project-pct">44%</div>
+            </div>
+            <div class="dash-progress-bar">
+              <div class="dash-progress-fill" style="width:44%;animation-delay:0.6s"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dash-metrics">
+          <div class="dash-metric">
+            <div class="dash-metric-val">12</div>
+            <div class="dash-metric-label">Projects</div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-metric-val">97%</div>
+            <div class="dash-metric-label">On Track</div>
+          </div>
+          <div class="dash-metric">
+            <div class="dash-metric-val">6</div>
+            <div class="dash-metric-label">Countries</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </div>
+
+  <!-- WHAT WE DO -->
+  <section class="reveal">
+    <div class="section-tag">Core Capabilities</div>
+    <h2 class="section-headline">What <em>Arunium</em> Does</h2>
+    <p class="section-body">We operate at the intersection of strategy, operational design, and execution oversight — filling the gap between high-level ambition and ground-level delivery.</p>
+
+    <div class="what-grid">
+      <div class="what-item">
+        <div class="what-number">01</div>
+        <div class="what-title">Strategy & Operations</div>
+        <div class="what-body">We translate business goals into operational frameworks. From go-to-market design to organisational architecture, we build the scaffolding your business needs to scale without breaking.</div>
+      </div>
+      <div class="what-item">
+        <div class="what-number">02</div>
+        <div class="what-title">Venture Execution</div>
+        <div class="what-body">We embed with founders and leadership teams to operationalise new ventures — from market validation and team assembly to launch and early-stage growth operations.</div>
+      </div>
+      <div class="what-item">
+        <div class="what-number">03</div>
+        <div class="what-title">Digital Transformation</div>
+        <div class="what-body">We lead organisations through complex technology transitions — system selection, implementation oversight, process re-engineering, and change management across African markets.</div>
+      </div>
+      <div class="what-item">
+        <div class="what-number">04</div>
+        <div class="what-title">Marketplace & Platform Development</div>
+        <div class="what-body">We architect, build, and launch digital platforms and marketplace ecosystems — handling product strategy, vendor management, technical coordination, and commercial operations.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar reveal">
+    <div class="stats-inner">
+      <div>
+        <div class="stat-number">40+</div>
+        <div class="stat-label">Projects Executed</div>
+      </div>
+      <div>
+        <div class="stat-number">6</div>
+        <div class="stat-label">African Markets</div>
+      </div>
+      <div>
+        <div class="stat-number">98%</div>
+        <div class="stat-label">On-Time Delivery</div>
+      </div>
+      <div>
+        <div class="stat-number">₦2B+</div>
+        <div class="stat-label">Value Orchestrated</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY ARUNIUM -->
+  <div class="why-section reveal">
+    <div class="why-inner">
+      <div class="section-tag">The Arunium Difference</div>
+      <h2 class="section-headline">Why Institutions<br><em>Choose Arunium</em></h2>
+
+      <div class="why-grid">
+        <div class="why-card">
+          <svg class="why-icon" viewBox="0 0 40 40" fill="none">
+            <rect x="4" y="28" width="8" height="8" fill="#C8973A" opacity="0.6"/>
+            <rect x="16" y="18" width="8" height="18" fill="#C8973A" opacity="0.8"/>
+            <rect x="28" y="8" width="8" height="28" fill="#C8973A"/>
+          </svg>
+          <div class="why-title">Execution Over Advice</div>
+          <div class="why-body">We don't hand over slide decks. We install ourselves into your operations, manage the plan, track milestones, and deliver outcomes — then report back with precision.</div>
+        </div>
+        <div class="why-card">
+          <svg class="why-icon" viewBox="0 0 40 40" fill="none">
+            <circle cx="20" cy="20" r="14" stroke="#C8973A" stroke-width="1" opacity="0.4"/>
+            <circle cx="20" cy="20" r="8" stroke="#C8973A" stroke-width="1" opacity="0.7"/>
+            <circle cx="20" cy="20" r="3" fill="#C8973A"/>
+          </svg>
+          <div class="why-title">Africa-Specific Intelligence</div>
+          <div class="why-body">Our methodology is built on deep understanding of African market dynamics, regulatory environments, infrastructure realities, and the operational context that foreign frameworks miss.</div>
+        </div>
+        <div class="why-card">
+          <svg class="why-icon" viewBox="0 0 40 40" fill="none">
+            <rect x="4" y="4" width="14" height="14" stroke="#C8973A" stroke-width="1" opacity="0.5"/>
+            <rect x="22" y="4" width="14" height="14" stroke="#C8973A" stroke-width="1" opacity="0.7"/>
+            <rect x="4" y="22" width="14" height="14" stroke="#C8973A" stroke-width="1" opacity="0.7"/>
+            <rect x="22" y="22" width="14" height="14" stroke="#C8973A" stroke-width="1"/>
+          </svg>
+          <div class="why-title">Institutional Governance</div>
+          <div class="why-body">Every engagement includes structured reporting cadences, milestone documentation, risk dashboards, and escalation protocols — giving stakeholders real-time visibility into progress.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FEATURED PROJECTS -->
+  <section class="reveal">
+    <div class="section-tag">Portfolio</div>
+    <h2 class="section-headline"><em>Featured</em> Projects</h2>
+    <p class="section-body">A selection of ventures and transformations we've designed, built, and led to operational maturity.</p>
+
+    <div class="projects-grid">
+      <div class="project-card">
+        <div class="project-tag">Entertainment · Platform</div>
+        <div class="project-name">Party Plug</div>
+        <div class="project-desc">Full-stack marketplace development for Nigeria's premium events industry. Platform architecture, vendor network, booking systems, and payment infrastructure.</div>
+        <div class="project-metrics">
+          <div class="project-metric">
+            <span>78%</span>
+            <span>Complete</span>
+          </div>
+          <div class="project-metric">
+            <span>Phase 3</span>
+            <span>Current Stage</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-tag">Commerce · Market Entry</div>
+        <div class="project-name">Vemre</div>
+        <div class="project-desc">End-to-end market entry execution for a cross-border commerce venture. Operations design, regulatory navigation, supply chain architecture, and launch management.</div>
+        <div class="project-metrics">
+          <div class="project-metric">
+            <span>61%</span>
+            <span>Complete</span>
+          </div>
+          <div class="project-metric">
+            <span>2 Markets</span>
+            <span>Coverage</span>
+          </div>
+        </div>
+      </div>
+      <div class="project-card">
+        <div class="project-tag">Logistics · Operations</div>
+        <div class="project-name">Errandsprt</div>
+        <div class="project-desc">Operational infrastructure build for an urban logistics and errand services platform. Fleet management, dispatch systems, SLA frameworks, and agent network development.</div>
+        <div class="project-metrics">
+          <div class="project-metric">
+            <span>44%</span>
+            <span>Complete</span>
+          </div>
+          <div class="project-metric">
+            <span>Build Phase</span>
+            <span>Current Stage</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <div class="cta-section reveal">
+    <div class="section-tag" style="justify-content:center">Begin an Engagement</div>
+    <h2 class="cta-headline">Ready to move from<br><em>strategy to execution?</em></h2>
+    <p class="cta-sub">Engage Arunium to operationalise your next venture, transformation, or complex project.</p>
+    <a href="#" class="btn-primary" onclick="showPage('contact')"><span>Start a Conversation</span></a>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <a class="nav-logo" href="#" onclick="showPage('home')" style="display:inline-flex;margin-bottom:4px">
+            <div class="nav-logo-icon"><span></span><span></span><span></span></div>
+            <span class="nav-logo-text" style="font-size:16px">ARUNIUM</span>
+          </a>
+          <p>Execution infrastructure for businesses building in Africa. Strategy, operations, and digital transformation — delivered.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Services</h4>
+          <ul>
+            <li><a href="#" onclick="showPage('services')">Strategy & Operations</a></li>
+            <li><a href="#" onclick="showPage('services')">Digital Transformation</a></li>
+            <li><a href="#" onclick="showPage('services')">Venture Execution</a></li>
+            <li><a href="#" onclick="showPage('services')">Execution Oversight</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#" onclick="showPage('network')">Execution Network</a></li>
+            <li><a href="#" onclick="showPage('cases')">Case Studies</a></li>
+            <li><a href="#" onclick="showPage('roles')">Careers</a></li>
+            <li><a href="#" onclick="showPage('contact')">Contact</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Connect</h4>
+          <ul>
+            <li><a href="mailto:hello@arunium.com">hello@arunium.com</a></li>
+            <li><a href="#">LinkedIn</a></li>
+            <li><a href="#">Twitter / X</a></li>
+            <li><a href="#" onclick="showPage('portal')">Client Portal</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<!-- END HOME -->
+
+<!-- ══════════════════════ SERVICES PAGE ══════════════════════ -->
+<div class="page" id="page-services">
+
+  <div class="services-hero reveal">
+    <div class="section-tag">Service Architecture</div>
+    <h1 class="section-headline" style="font-size:clamp(44px,5vw,72px)">How We<br><em>Build & Deliver</em></h1>
+    <p class="section-body" style="max-width:600px">Our services are not packaged products. They are bespoke engagement models designed around your operational reality, your timelines, and your outcomes.</p>
+  </div>
+
+  <div class="services-grid">
+
+    <div class="service-block reveal">
+      <div class="service-meta">
+        <div class="service-num">01</div>
+        <div class="service-title">Strategy & Operations Consulting</div>
+      </div>
+      <div class="service-content">
+        <div class="service-lead">"We install the operating system your business needs to scale."</div>
+        <div class="service-body">Most businesses fail not from bad ideas but from poor operational design. We conduct deep operational diagnostics, design execution-ready strategies, and build the internal systems that allow leadership to focus on growth rather than fire-fighting. Our engagements are structured around measurable operational outcomes — not deliverables that sit in a drawer.</div>
+        <div class="service-outcomes">
+          <div class="outcome-item"><strong>Operational Diagnostics</strong>Identify gaps, bottlenecks, and structural inefficiencies across your business</div>
+          <div class="outcome-item"><strong>Strategy Design</strong>Translate boardroom ambition into ground-level execution plans</div>
+          <div class="outcome-item"><strong>Process Engineering</strong>Build systems, SOPs, and workflows that scale without dependency on individuals</div>
+          <div class="outcome-item"><strong>Performance Frameworks</strong>Install KPI architecture, reporting cadences, and accountability structures</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="service-block reveal">
+      <div class="service-meta">
+        <div class="service-num">02</div>
+        <div class="service-title">Digital Transformation</div>
+      </div>
+      <div class="service-content">
+        <div class="service-lead">"Technology transformation is 20% technology and 80% change management."</div>
+        <div class="service-body">We lead organisations through complex technology transitions with discipline and precision. From ERP implementations to custom platform builds, we manage vendor selection, oversee technical delivery, re-engineer affected processes, and manage organisational change — ensuring technology investments actually deliver the ROI they promised.</div>
+        <div class="service-outcomes">
+          <div class="outcome-item"><strong>Technology Roadmapping</strong>Strategic sequencing of digital investments aligned to business objectives</div>
+          <div class="outcome-item"><strong>Vendor Management</strong>Selection, negotiation, and performance oversight of technology vendors</div>
+          <div class="outcome-item"><strong>Implementation Oversight</strong>Programme management across complex multi-system transformations</div>
+          <div class="outcome-item"><strong>Change Management</strong>Structured adoption programmes that protect transformation ROI</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="service-block reveal">
+      <div class="service-meta">
+        <div class="service-num">03</div>
+        <div class="service-title">Venture & Marketplace Development</div>
+      </div>
+      <div class="service-content">
+        <div class="service-lead">"From concept validation to operational marketplace — we build what founders can't do alone."</div>
+        <div class="service-body">We partner with founders to operationalise new ventures from the ground up. This includes market validation, business model design, platform architecture, team assembly, vendor network development, and go-to-market execution. We function as an embedded operational leadership layer — not an external advisor parachuting in once a quarter.</div>
+        <div class="service-outcomes">
+          <div class="outcome-item"><strong>Market Validation</strong>Rapid validation frameworks before significant capital is committed</div>
+          <div class="outcome-item"><strong>Platform Architecture</strong>Product and technology strategy for digital marketplace businesses</div>
+          <div class="outcome-item"><strong>Vendor Networks</strong>Build, vet, and onboard the supply-side ecosystem your platform needs</div>
+          <div class="outcome-item"><strong>Go-To-Market</strong>Launch sequencing, commercial operations, and demand generation</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="service-block reveal">
+      <div class="service-meta">
+        <div class="service-num">04</div>
+        <div class="service-title">Execution Oversight & Governance</div>
+      </div>
+      <div class="service-content">
+        <div class="service-lead">"We sit between your board and your project teams — ensuring what was planned gets delivered."</div>
+        <div class="service-body">Large organisations frequently experience the gap between strategic intent and operational reality. We close that gap through structured execution oversight — installing programme governance, milestone tracking, risk management, and escalation protocols that give leadership real-time visibility and confidence.</div>
+        <div class="service-outcomes">
+          <div class="outcome-item"><strong>Programme Governance</strong>Institutional-grade oversight structures for complex multi-workstream programmes</div>
+          <div class="outcome-item"><strong>Risk Management</strong>Proactive risk identification and mitigation across all execution phases</div>
+          <div class="outcome-item"><strong>Reporting Architecture</strong>Cadenced reporting systems from team level to board level</div>
+          <div class="outcome-item"><strong>Stakeholder Management</strong>Communication and alignment management across complex stakeholder landscapes</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="service-block reveal">
+      <div class="service-meta">
+        <div class="service-num">05</div>
+        <div class="service-title">Business Infrastructure Advisory</div>
+      </div>
+      <div class="service-content">
+        <div class="service-lead">"The infrastructure beneath your business determines its ceiling."</div>
+        <div class="service-body">We help businesses build the foundational infrastructure that enables scale — legal entity structuring, financial management systems, HR and talent frameworks, compliance architecture, and operational technology stacks. Often overlooked at early stage, these elements determine whether a business can absorb growth or collapse under it.</div>
+        <div class="service-outcomes">
+          <div class="outcome-item"><strong>Entity Structuring</strong>Legal and corporate architecture for cross-border and multi-entity operations</div>
+          <div class="outcome-item"><strong>Financial Systems</strong>Management accounting, reporting, and financial controls implementation</div>
+          <div class="outcome-item"><strong>Compliance Architecture</strong>Regulatory mapping and compliance infrastructure for African markets</div>
+          <div class="outcome-item"><strong>HR Frameworks</strong>People systems, compensation structures, and talent acquisition design</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- CTA -->
+  <div class="cta-section reveal">
+    <div class="section-tag" style="justify-content:center">Engage Arunium</div>
+    <h2 class="cta-headline">Every engagement is<br><em>designed around your reality.</em></h2>
+    <p class="cta-sub">Tell us where you are. We'll design the right approach.</p>
+    <a href="#" class="btn-primary" onclick="showPage('contact')"><span>Begin a Conversation</span></a>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END SERVICES -->
+
+<!-- ══════════════════════ EXECUTION NETWORK ══════════════════════ -->
+<div class="page" id="page-network">
+
+  <div class="network-hero reveal">
+    <div class="section-tag">Execution Network</div>
+    <h1 class="section-headline" style="font-size:clamp(44px,5vw,72px)">A Managed<br><em>Execution Network</em></h1>
+    <p class="section-body" style="max-width:640px">Arunium coordinates a curated network of vetted, sector-experienced professionals and execution partners — deployed with institutional governance, not left to self-manage.</p>
+    <div class="gold-divider"></div>
+    <p style="font-size:13px;color:var(--text-muted);max-width:560px;line-height:1.9;">This is not a freelancer marketplace. Every professional in our network is known, assessed, and deployed under Arunium's oversight framework — with clear mandates, performance standards, and reporting requirements.</p>
+  </div>
+
+  <div class="network-sectors">
+    <div class="sector-item">
+      <span class="sector-icon">🏗</span>
+      <div class="sector-name">Real Estate & Infrastructure</div>
+      <div class="sector-desc">Project management, development advisory, construction oversight, and property operations professionals.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">⚙️</span>
+      <div class="sector-name">Technology & Engineering</div>
+      <div class="sector-desc">Senior technical architects, product leads, and engineering managers for digital transformation programmes.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">🌿</span>
+      <div class="sector-name">Agriculture & Agribusiness</div>
+      <div class="sector-desc">Agri-operations experts, value chain specialists, and market linkage professionals across Sub-Saharan Africa.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">🚛</span>
+      <div class="sector-name">Logistics & Supply Chain</div>
+      <div class="sector-desc">Fleet operations, last-mile distribution, warehousing, and supply chain design specialists.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">📊</span>
+      <div class="sector-name">Finance & Commercial</div>
+      <div class="sector-desc">CFO-level operators, financial modellers, commercial directors, and treasury management professionals.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">🏛</span>
+      <div class="sector-name">Operations & Delivery</div>
+      <div class="sector-desc">Programme managers, operations directors, and project delivery leads with proven African market track records.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">⚖️</span>
+      <div class="sector-name">Legal & Regulatory</div>
+      <div class="sector-desc">In-country legal counsel, regulatory specialists, and compliance advisors across key African jurisdictions.</div>
+    </div>
+    <div class="sector-item">
+      <span class="sector-icon">📣</span>
+      <div class="sector-name">Marketing & Growth</div>
+      <div class="sector-desc">Senior growth operators, brand strategists, and commercial expansion specialists for African consumer markets.</div>
+    </div>
+  </div>
+
+  <div class="network-pillars reveal">
+    <div>
+      <div class="section-tag">How It Works</div>
+      <h2 class="section-headline">Governed.<br>Transparent.<br><em>Accountable.</em></h2>
+      <p class="section-body">Every deployment from our execution network operates under Arunium's governance framework — with defined scopes, performance KPIs, reporting cadences, and executive oversight.</p>
+    </div>
+    <div class="pillar-list">
+      <div class="pillar-item">
+        <div class="pillar-icon-box">✓</div>
+        <div class="pillar-text">
+          <h4>Curated Assessment</h4>
+          <p>Every professional is assessed against sector competence, execution track record, and African market experience before joining the network.</p>
+        </div>
+      </div>
+      <div class="pillar-item">
+        <div class="pillar-icon-box">◎</div>
+        <div class="pillar-text">
+          <h4>Mandated Governance</h4>
+          <p>All deployments operate under structured mandates with defined scopes, deliverables, KPIs, and escalation protocols managed by Arunium.</p>
+        </div>
+      </div>
+      <div class="pillar-item">
+        <div class="pillar-icon-box">≡</div>
+        <div class="pillar-text">
+          <h4>Executive Reporting</h4>
+          <p>Clients receive structured performance reports on every deployed resource — progress, risks, blockers, and next-period plans.</p>
+        </div>
+      </div>
+      <div class="pillar-item">
+        <div class="pillar-icon-box">△</div>
+        <div class="pillar-text">
+          <h4>Arunium Oversight</h4>
+          <p>Our senior team maintains active oversight of all network deployments — intervening, realigning, and escalating as needed to protect client outcomes.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="cta-section" style="margin:0 48px 80px">
+    <h2 class="cta-headline">Need execution<br><em>capacity with governance?</em></h2>
+    <p class="cta-sub">Engage our network under Arunium's managed oversight model.</p>
+    <a href="#" class="btn-primary" onclick="showPage('contact')"><span>Request a Network Brief</span></a>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END NETWORK -->
+
+<!-- ══════════════════════ CASE STUDIES ══════════════════════ -->
+<div class="page" id="page-cases">
+
+  <div class="case-hero reveal">
+    <div class="section-tag">Case Studies</div>
+    <h1 class="section-headline" style="font-size:clamp(44px,5vw,72px)">Execution<br><em>in Practice</em></h1>
+    <p class="section-body" style="max-width:560px">Real ventures. Real complexity. Real outcomes. Each engagement is a structured programme — designed, managed, and delivered under Arunium's execution framework.</p>
+  </div>
+
+  <div class="case-grid">
+
+    <div class="case-card reveal">
+      <div class="case-header">
+        <div>
+          <div class="case-tag">Entertainment · Marketplace Platform · Nigeria</div>
+          <div class="case-name">Party Plug</div>
+        </div>
+        <div class="case-status">Active — Phase 3</div>
+      </div>
+      <div class="case-body">Party Plug is a premium events and entertainment marketplace connecting hosts, venues, vendors, and entertainment professionals across Nigeria's tier-1 cities. Arunium led the full venture execution — from concept validation through platform architecture, vendor network development, commercial operations design, and launch management. The platform is currently in Phase 3 of development with live beta onboarding underway.</div>
+      <div class="case-timeline">
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 01</div>
+          <div class="phase-name">Market Validation</div>
+        </div>
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 02</div>
+          <div class="phase-name">Platform Build</div>
+        </div>
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 03</div>
+          <div class="phase-name">Vendor Network</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 04</div>
+          <div class="phase-name">Commercial Launch</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 05</div>
+          <div class="phase-name">Scale</div>
+        </div>
+      </div>
+      <div class="case-outcomes">
+        <div>
+          <div class="case-outcome">78%</div>
+          <div class="case-outcome-label">Programme Complete</div>
+        </div>
+        <div>
+          <div class="case-outcome">40+</div>
+          <div class="case-outcome-label">Vendors Onboarded</div>
+        </div>
+        <div>
+          <div class="case-outcome">3</div>
+          <div class="case-outcome-label">Cities in Launch Scope</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-card reveal">
+      <div class="case-header">
+        <div>
+          <div class="case-tag">Commerce · Cross-Border · Market Entry</div>
+          <div class="case-name">Vemre</div>
+        </div>
+        <div class="case-status">Active — Market Entry</div>
+      </div>
+      <div class="case-body">Vemre is a cross-border commerce venture targeting intra-African trade opportunities. Arunium was engaged to design and execute the market entry programme — spanning entity structuring, regulatory navigation across two jurisdictions, supply chain architecture, commercial partner development, and operational systems implementation. The programme is progressing against a phased 18-month execution plan.</div>
+      <div class="case-timeline">
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 01</div>
+          <div class="phase-name">Entry Strategy</div>
+        </div>
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 02</div>
+          <div class="phase-name">Regulatory Setup</div>
+        </div>
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 03</div>
+          <div class="phase-name">Ops Build</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 04</div>
+          <div class="phase-name">Pilot Launch</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 05</div>
+          <div class="phase-name">Expansion</div>
+        </div>
+      </div>
+      <div class="case-outcomes">
+        <div>
+          <div class="case-outcome">61%</div>
+          <div class="case-outcome-label">Programme Complete</div>
+        </div>
+        <div>
+          <div class="case-outcome">2</div>
+          <div class="case-outcome-label">Markets Active</div>
+        </div>
+        <div>
+          <div class="case-outcome">18mo</div>
+          <div class="case-outcome-label">Programme Timeline</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-card reveal">
+      <div class="case-header">
+        <div>
+          <div class="case-tag">Logistics · Urban Services · Operations Build</div>
+          <div class="case-name">Errandsprt</div>
+        </div>
+        <div class="case-status">Active — Build Phase</div>
+      </div>
+      <div class="case-body">Errandsprt is an urban logistics and errand services platform targeting Nigeria's dense urban centres. Arunium is leading the operational infrastructure build — covering agent network development, dispatch and routing systems, SLA frameworks, customer experience design, pricing architecture, and field operations management. The platform is in active build phase with pilot operations planned for Q3.</div>
+      <div class="case-timeline">
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 01</div>
+          <div class="phase-name">Ops Design</div>
+        </div>
+        <div class="timeline-phase active">
+          <div class="phase-num">Phase 02</div>
+          <div class="phase-name">Systems Build</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 03</div>
+          <div class="phase-name">Agent Network</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 04</div>
+          <div class="phase-name">Pilot Launch</div>
+        </div>
+        <div class="timeline-phase">
+          <div class="phase-num">Phase 05</div>
+          <div class="phase-name">City Rollout</div>
+        </div>
+      </div>
+      <div class="case-outcomes">
+        <div>
+          <div class="case-outcome">44%</div>
+          <div class="case-outcome-label">Programme Complete</div>
+        </div>
+        <div>
+          <div class="case-outcome">Q3</div>
+          <div class="case-outcome-label">Pilot Target</div>
+        </div>
+        <div>
+          <div class="case-outcome">1 City</div>
+          <div class="case-outcome-label">Initial Scope</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-section" style="margin:0 48px 80px">
+    <h2 class="cta-headline">Building something<br><em>complex in Africa?</em></h2>
+    <p class="cta-sub">Let's discuss how Arunium can take it from plan to operational reality.</p>
+    <a href="#" class="btn-primary" onclick="showPage('contact')"><span>Start a Conversation</span></a>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END CASES -->
+
+<!-- ══════════════════════ CLIENT PORTAL ══════════════════════ -->
+<div class="page" id="page-portal">
+
+  <!-- LOGIN -->
+  <div class="portal-area active" id="portalLogin">
+    <div class="portal-login">
+      <div class="login-box">
+        <div class="login-logo">
+          <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:8px">
+            <div class="nav-logo-icon"><span></span><span></span><span></span></div>
+            <span class="nav-logo-text">ARUNIUM</span>
+          </div>
+        </div>
+        <div class="login-title">Client Portal</div>
+        <div class="login-sub">Secure Project Dashboard</div>
+
+        <div class="form-group">
+          <label class="form-label">Email Address</label>
+          <input type="email" class="form-input" placeholder="your@company.com" id="loginEmail">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <input type="password" class="form-input" placeholder="••••••••" id="loginPass">
+        </div>
+
+        <div style="margin-bottom:24px">
+          <button class="btn-primary" style="width:100%" onclick="doLogin()"><span>Access Portal</span></button>
+        </div>
+
+        <div style="text-align:center">
+          <span style="font-size:12px;color:var(--text-muted)">Don't have access? </span>
+          <a href="#" onclick="showPage('contact')" style="font-size:12px;color:var(--gold);text-decoration:none">Contact your account manager</a>
+        </div>
+
+        <div style="margin-top:48px;padding:20px;background:rgba(200,151,58,0.05);border:1px solid var(--gold-border);text-align:center">
+          <div style="font-family:var(--font-cond);font-size:10px;letter-spacing:0.2em;color:var(--gold);margin-bottom:6px">DEMO ACCESS</div>
+          <div style="font-size:12px;color:var(--text-muted)">Email: demo@arunium.com · Password: demo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="portal-area" id="portalDash">
+    <div class="portal-dashboard" style="display:block">
+
+      <div class="dashboard-sidebar">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Overview</div>
+          <div class="sidebar-item active">
+            <span>◈</span> Dashboard
+          </div>
+          <div class="sidebar-item">
+            <span>◫</span> Projects
+          </div>
+          <div class="sidebar-item">
+            <span>◉</span> Milestones
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Files & Reports</div>
+          <div class="sidebar-item">
+            <span>⊡</span> Documents
+          </div>
+          <div class="sidebar-item">
+            <span>≡</span> Reports
+          </div>
+          <div class="sidebar-item">
+            <span>◧</span> Invoices
+          </div>
+        </div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Account</div>
+          <div class="sidebar-item" onclick="doLogout()">
+            <span>→</span> Sign Out
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-main">
+        <div class="dash-welcome">
+          <h2>Good morning, <em style="font-style:italic;color:var(--gold)">Olaoluwa</em></h2>
+          <p>Arunium Execution Dashboard · Last updated: Today at 09:14 AM</p>
+        </div>
+
+        <div class="dash-kpi-row">
+          <div class="kpi-card">
+            <div class="kpi-label">Active Projects</div>
+            <div class="kpi-value">3</div>
+            <div class="kpi-delta">↑ 1 added this quarter</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Overall Progress</div>
+            <div class="kpi-value">61%</div>
+            <div class="kpi-delta">↑ 8% from last month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Milestones Due</div>
+            <div class="kpi-value">4</div>
+            <div class="kpi-delta">This month</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Open Items</div>
+            <div class="kpi-value">7</div>
+            <div class="kpi-delta">Awaiting your input</div>
+          </div>
+        </div>
+
+        <div class="dash-content-grid">
+          <div>
+            <div class="dash-card" style="margin-bottom:24px">
+              <div class="dash-card-title">Project Progress</div>
+              <div class="project-progress-list">
+                <div class="pp-item">
+                  <div class="pp-header">
+                    <div class="pp-name">Party Plug — Platform Launch</div>
+                    <div class="pp-pct">78%</div>
+                  </div>
+                  <div class="pp-bar"><div class="pp-fill" style="width:78%"></div></div>
+                  <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">Phase 3 of 5 · On Track</div>
+                </div>
+                <div class="pp-item" style="margin-top:20px">
+                  <div class="pp-header">
+                    <div class="pp-name">Vemre — Market Entry</div>
+                    <div class="pp-pct">61%</div>
+                  </div>
+                  <div class="pp-bar"><div class="pp-fill" style="width:61%"></div></div>
+                  <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">Phase 3 of 5 · On Track</div>
+                </div>
+                <div class="pp-item" style="margin-top:20px">
+                  <div class="pp-header">
+                    <div class="pp-name">Errandsprt — Ops Build</div>
+                    <div class="pp-pct">44%</div>
+                  </div>
+                  <div class="pp-bar"><div class="pp-fill" style="width:44%"></div></div>
+                  <div style="margin-top:6px;font-size:11px;color:var(--text-muted)">Phase 2 of 5 · In Progress</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mini chart -->
+            <div class="dash-card">
+              <div class="dash-card-title">Execution Velocity — Last 6 Months</div>
+              <svg class="chart-svg" viewBox="0 0 500 160">
+                <defs>
+                  <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#C8973A" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="#C8973A" stop-opacity="0"/>
+                  </linearGradient>
+                </defs>
+                <!-- Grid lines -->
+                <line x1="0" y1="40" x2="500" y2="40" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="80" x2="500" y2="80" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <line x1="0" y1="120" x2="500" y2="120" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>
+                <!-- Area fill -->
+                <path d="M0 140 L80 120 L160 100 L240 80 L320 60 L400 35 L500 20 L500 160 L0 160 Z" fill="url(#chartGrad)"/>
+                <!-- Line -->
+                <path d="M0 140 L80 120 L160 100 L240 80 L320 60 L400 35 L500 20" fill="none" stroke="#C8973A" stroke-width="1.5"/>
+                <!-- Dots -->
+                <circle cx="80" cy="120" r="3" fill="#C8973A"/>
+                <circle cx="160" cy="100" r="3" fill="#C8973A"/>
+                <circle cx="240" cy="80" r="3" fill="#C8973A"/>
+                <circle cx="320" cy="60" r="3" fill="#C8973A"/>
+                <circle cx="400" cy="35" r="3" fill="#C8973A"/>
+                <circle cx="500" cy="20" r="3" fill="#C8973A"/>
+                <!-- Labels -->
+                <text x="80" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">Dec</text>
+                <text x="160" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">Jan</text>
+                <text x="240" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">Feb</text>
+                <text x="320" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">Mar</text>
+                <text x="400" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">Apr</text>
+                <text x="490" y="155" fill="#5C5A56" font-size="9" font-family="sans-serif" text-anchor="middle">May</text>
+              </svg>
+            </div>
+          </div>
+
+          <div>
+            <div class="dash-card">
+              <div class="dash-card-title">Milestone Tracker</div>
+              <div class="milestone-list">
+                <div class="milestone-item">
+                  <div class="milestone-dot done"></div>
+                  <div>
+                    <div class="milestone-name">Vendor Network — Phase 1</div>
+                    <div class="milestone-meta">Completed · 12 Apr 2025</div>
+                  </div>
+                </div>
+                <div class="milestone-item">
+                  <div class="milestone-dot done"></div>
+                  <div>
+                    <div class="milestone-name">Platform Architecture Sign-off</div>
+                    <div class="milestone-meta">Completed · 28 Apr 2025</div>
+                  </div>
+                </div>
+                <div class="milestone-item">
+                  <div class="milestone-dot active"></div>
+                  <div>
+                    <div class="milestone-name">Beta Onboarding — 40 vendors</div>
+                    <div class="milestone-meta">In Progress · Due 25 May 2025</div>
+                  </div>
+                </div>
+                <div class="milestone-item">
+                  <div class="milestone-dot active"></div>
+                  <div>
+                    <div class="milestone-name">Market Entry — Abuja Regulatory</div>
+                    <div class="milestone-meta">In Progress · Due 30 May 2025</div>
+                  </div>
+                </div>
+                <div class="milestone-item">
+                  <div class="milestone-dot pending"></div>
+                  <div>
+                    <div class="milestone-name">Errandsprt Agent Network Build</div>
+                    <div class="milestone-meta">Pending · Starts Jun 2025</div>
+                  </div>
+                </div>
+                <div class="milestone-item">
+                  <div class="milestone-dot pending"></div>
+                  <div>
+                    <div class="milestone-name">Party Plug Commercial Launch</div>
+                    <div class="milestone-meta">Pending · Target Q3 2025</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END PORTAL -->
+
+<!-- ══════════════════════ CAREERS — ROLES ══════════════════════ -->
+<div class="page" id="page-roles">
+
+  <div class="careers-hero reveal">
+    <div class="section-tag">Careers at Arunium</div>
+    <h1 class="section-headline" style="font-size:clamp(44px,5vw,72px)">Build Africa's<br><em>Execution Capacity</em></h1>
+    <p class="section-body" style="max-width:560px">We hire operators, not theorists. Every member of the Arunium team is selected for their ability to deliver measurable outcomes in complex, high-stakes environments.</p>
+  </div>
+
+  <div class="roles-grid">
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Senior Operations Consultant</div>
+        <div class="role-meta">
+          <span class="role-badge">Operations</span>
+          <span class="role-badge">Lagos, Nigeria</span>
+          <span class="role-badge">Full-Time</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Digital Transformation Lead</div>
+        <div class="role-meta">
+          <span class="role-badge">Technology</span>
+          <span class="role-badge">Lagos / Remote</span>
+          <span class="role-badge">Full-Time</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Venture Execution Manager</div>
+        <div class="role-meta">
+          <span class="role-badge">Venture</span>
+          <span class="role-badge">Lagos, Nigeria</span>
+          <span class="role-badge">Full-Time</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Programme Governance Analyst</div>
+        <div class="role-meta">
+          <span class="role-badge">Governance</span>
+          <span class="role-badge">Lagos, Nigeria</span>
+          <span class="role-badge">Full-Time</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Business Infrastructure Advisor</div>
+        <div class="role-meta">
+          <span class="role-badge">Advisory</span>
+          <span class="role-badge">Remote — Africa</span>
+          <span class="role-badge">Contract</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+    <div class="role-card reveal">
+      <div>
+        <div class="role-title">Marketplace Operations Associate</div>
+        <div class="role-meta">
+          <span class="role-badge">Operations</span>
+          <span class="role-badge">Lagos, Nigeria</span>
+          <span class="role-badge">Full-Time</span>
+        </div>
+      </div>
+      <div class="role-apply" onclick="showPage('apply')">
+        Apply Now
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="cta-section" style="margin:0 48px 80px">
+    <h2 class="cta-headline">Don't see your role?<br><em>We're always looking.</em></h2>
+    <p class="cta-sub">Send us your profile and tell us what you can execute.</p>
+    <a href="#" class="btn-primary" onclick="showPage('apply')"><span>Open Application</span></a>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END ROLES -->
+
+<!-- ══════════════════════ APPLY NOW ══════════════════════ -->
+<div class="page" id="page-apply">
+
+  <div class="apply-section">
+    <div class="section-tag">Application</div>
+    <h1 class="section-headline">Apply to<br><em>Arunium</em></h1>
+    <p class="section-body" style="margin-bottom:64px">We review every application personally. We're not looking for the longest CV — we're looking for demonstrated ability to execute in demanding environments.</p>
+
+    <form id="applyForm" onsubmit="submitApplication(event)">
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-input" name="fullName" required placeholder="Your full name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address *</label>
+          <input type="email" class="form-input" name="email" required placeholder="your@email.com">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Phone Number *</label>
+          <input type="tel" class="form-input" name="phone" required placeholder="+234 xxx xxx xxxx">
+        </div>
+        <div class="form-group">
+          <label class="form-label">LinkedIn Profile URL</label>
+          <input type="url" class="form-input" name="linkedin" placeholder="linkedin.com/in/yourprofile">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Portfolio / Website URL</label>
+          <input type="url" class="form-input" name="portfolio" placeholder="yoursite.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Years of Experience *</label>
+          <select class="form-select" name="experience" required>
+            <option value="" disabled selected>Select range</option>
+            <option>1–3 years</option>
+            <option>3–5 years</option>
+            <option>5–8 years</option>
+            <option>8–12 years</option>
+            <option>12+ years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Primary Sector Experience *</label>
+          <select class="form-select" name="sector" required>
+            <option value="" disabled selected>Select sector</option>
+            <option>Strategy & Consulting</option>
+            <option>Technology & Digital</option>
+            <option>Operations & Logistics</option>
+            <option>Finance & Commercial</option>
+            <option>Real Estate & Infrastructure</option>
+            <option>Agriculture & Agribusiness</option>
+            <option>Marketing & Growth</option>
+            <option>Legal & Regulatory</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Availability *</label>
+          <select class="form-select" name="availability" required>
+            <option value="" disabled selected>Select availability</option>
+            <option>Immediately</option>
+            <option>Within 2 weeks</option>
+            <option>Within 1 month</option>
+            <option>Within 3 months</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Salary Expectations</label>
+        <input type="text" class="form-input" name="salary" placeholder="e.g. ₦8M–12M per annum or open to discussion">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Why Arunium? *</label>
+        <textarea class="form-textarea" name="whyArunium" required placeholder="Tell us why you want to work at Arunium and what you'll bring to our execution capacity. Be specific — we value precision over length." style="min-height:160px"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">CV / Résumé *</label>
+          <label class="file-upload">
+            <div class="file-upload-label">Upload CV</div>
+            <div class="file-upload-hint" id="cvFileName">PDF or DOCX · Max 10MB</div>
+            <input type="file" name="cv" accept=".pdf,.docx" onchange="updateFileName(this,'cvFileName')">
+          </label>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Cover Letter</label>
+          <label class="file-upload">
+            <div class="file-upload-label">Upload Cover Letter</div>
+            <div class="file-upload-hint" id="clFileName">PDF or DOCX · Optional</div>
+            <input type="file" name="coverLetter" accept=".pdf,.docx" onchange="updateFileName(this,'clFileName')">
+          </label>
+        </div>
+      </div>
+
+      <!-- Anti-spam honeypot -->
+      <input type="text" name="website_url" style="display:none" tabindex="-1" autocomplete="off">
+
+      <div style="margin-top:48px">
+        <button type="submit" class="btn-primary" style="min-width:200px"><span>Submit Application</span></button>
+        <p style="margin-top:16px;font-size:12px;color:var(--text-muted)">Applications are reviewed within 5–7 business days. All submissions are sent to recruitment@arunium.com.</p>
+      </div>
+
+    </form>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END APPLY -->
+
+<!-- ══════════════════════ CONTACT ══════════════════════ -->
+<div class="page" id="page-contact">
+
+  <div class="contact-section">
+    <div class="contact-info reveal">
+      <div class="section-tag">Contact</div>
+      <h2 class="section-headline">Let's discuss<br>your <em>next</em><br>programme.</h2>
+      <p>Every Arunium engagement begins with a focused discovery conversation. We'll understand your context, your objectives, and the execution challenges standing between you and your goals.</p>
+
+      <div class="contact-detail">
+        <div class="contact-item">
+          <div class="contact-item-label">General Enquiries</div>
+          <div class="contact-item-value">hello@arunium.com</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Recruitment</div>
+          <div class="contact-item-value">recruitment@arunium.com</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Headquarters</div>
+          <div class="contact-item-value">Lagos, Nigeria</div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-item-label">Operating Markets</div>
+          <div class="contact-item-value">Nigeria · Ghana · Kenya · Rwanda · South Africa · Beyond</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal">
+      <div class="form-group">
+        <label class="form-label">Inquiry Type *</label>
+        <select class="form-select" id="inquiryType">
+          <option value="" disabled selected>Select enquiry type</option>
+          <option>New Engagement / Project</option>
+          <option>Digital Transformation Programme</option>
+          <option>Venture Execution Partnership</option>
+          <option>Execution Network Access</option>
+          <option>General Information</option>
+          <option>Media / Press</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-input" id="contactName" placeholder="Your name">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Organisation</label>
+          <input type="text" class="form-input" id="contactOrg" placeholder="Your company">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Email Address *</label>
+        <input type="email" class="form-input" id="contactEmail" placeholder="your@company.com">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Your Message *</label>
+        <textarea class="form-textarea" id="contactMessage" style="min-height:180px" placeholder="Tell us about your project, challenge, or objective. The more context you provide, the more prepared we'll be for our first conversation."></textarea>
+      </div>
+
+      <div style="margin-top:32px">
+        <button class="btn-primary" onclick="submitContact()"><span>Send Message</span></button>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <div class="footer-copy">© 2025 Arunium. All rights reserved.</div>
+        <div class="footer-copy">Strategy. Operations. Growth.</div>
+      </div>
+    </div>
+  </footer>
+</div>
+<!-- END CONTACT -->
+
+<script>
+// ─── PAGE NAVIGATION ───
+function showPage(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById('page-' + page);
+  if (target) {
+    target.classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    initReveal();
+  }
+}
+
+// ─── NAV SCROLL ───
+window.addEventListener('scroll', () => {
+  const nav = document.getElementById('mainNav');
+  nav.classList.toggle('scrolled', window.scrollY > 60);
+});
+
+// ─── MOBILE MENU ───
+function toggleMobile() {
+  document.getElementById('mobileMenu').classList.toggle('open');
+}
+
+// ─── SCROLL REVEAL ───
+function initReveal() {
+  setTimeout(() => {
+    const reveals = document.querySelectorAll('.page.active .reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+    reveals.forEach(el => observer.observe(el));
+  }, 100);
+}
+
+initReveal();
+
+// ─── PORTAL LOGIN ───
+function doLogin() {
+  const email = document.getElementById('loginEmail').value;
+  const pass = document.getElementById('loginPass').value;
+
+  if (!email || !pass) {
+    showToast('Missing Fields', 'Please enter your email and password.');
+    return;
+  }
+
+  // Demo credentials
+  if (email === 'demo@arunium.com' && pass === 'demo') {
+    document.getElementById('portalLogin').classList.remove('active');
+    document.getElementById('portalDash').classList.add('active');
+    showToast('Access Granted', 'Welcome to the Arunium Client Portal.');
+  } else {
+    showToast('Access Denied', 'Invalid credentials. Try demo@arunium.com / demo');
+  }
+}
+
+function doLogout() {
+  document.getElementById('portalDash').classList.remove('active');
+  document.getElementById('portalLogin').classList.add('active');
+  document.getElementById('loginEmail').value = '';
+  document.getElementById('loginPass').value = '';
+}
+
+// Allow Enter key on login
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && document.getElementById('page-portal').classList.contains('active')) {
+    const loginArea = document.getElementById('portalLogin');
+    if (loginArea.classList.contains('active')) doLogin();
+  }
+});
+
+// ─── CONTACT FORM ───
+function submitContact() {
+  const name = document.getElementById('contactName').value;
+  const email = document.getElementById('contactEmail').value;
+  const message = document.getElementById('contactMessage').value;
+
+  if (!name || !email || !message) {
+    showToast('Incomplete Form', 'Please fill in all required fields.');
+    return;
+  }
+
+  // Simulate submission
+  showToast('Message Sent', 'We\'ll be in touch within 2 business days.');
+  document.getElementById('contactName').value = '';
+  document.getElementById('contactEmail').value = '';
+  document.getElementById('contactOrg').value = '';
+  document.getElementById('contactMessage').value = '';
+}
+
+// ─── APPLICATION FORM ───
+function submitApplication(e) {
+  e.preventDefault();
+
+  // Honeypot check
+  const honeypot = e.target.querySelector('[name="website_url"]').value;
+  if (honeypot) return;
+
+  const cvFile = e.target.querySelector('[name="cv"]').files[0];
+  if (!cvFile) {
+    showToast('CV Required', 'Please upload your CV before submitting.');
+    return;
+  }
+
+  showToast('Application Received', 'Your application has been sent to recruitment@arunium.com. We review within 5–7 business days.');
+  e.target.reset();
+  document.getElementById('cvFileName').textContent = 'PDF or DOCX · Max 10MB';
+  document.getElementById('clFileName').textContent = 'PDF or DOCX · Optional';
+}
+
+// ─── FILE UPLOAD LABEL ───
+function updateFileName(input, labelId) {
+  const label = document.getElementById(labelId);
+  if (input.files && input.files[0]) {
+    label.textContent = '✓ ' + input.files[0].name;
+    label.style.color = 'var(--gold)';
+  }
+}
+
+// ─── TOAST ───
+function showToast(title, body) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastTitle').textContent = title;
+  document.getElementById('toastBody').textContent = body;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 4000);
+}
+
+// ─── ANIMATED COUNTER ───
+function animateCounters() {
+  document.querySelectorAll('.stat-number').forEach(el => {
+    const text = el.textContent;
+    const num = parseFloat(text.replace(/[^0-9.]/g, ''));
+    if (isNaN(num)) return;
+    const suffix = text.replace(/[0-9.]/g, '');
+    let start = 0;
+    const step = num / 40;
+    const timer = setInterval(() => {
+      start = Math.min(start + step, num);
+      el.textContent = (Number.isInteger(num) ? Math.round(start) : start.toFixed(1)) + suffix;
+      if (start >= num) clearInterval(timer);
+    }, 30);
+  });
+}
+
+// Trigger counters when stats bar is visible
+const statsObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      animateCounters();
+      statsObserver.disconnect();
+    }
+  });
+}, { threshold: 0.5 });
+
+const statsBar = document.querySelector('.stats-bar');
+if (statsBar) statsObserver.observe(statsBar);
+</script>
+
+</body>
+</html>
